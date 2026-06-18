@@ -27,18 +27,24 @@ from __future__ import annotations
 
 from metaboatrace.contracts.bet_decision import SCHEMA_VERSION, Bet, BetDecision
 from metaboatrace.contracts.crawl_completed import CrawlCompletedDetail
-from metaboatrace.contracts.predict_ledger import (
-    HELD_ON_INDEX,
-    PredictLedgerRecord,
-    PredictOutcome,
+from metaboatrace.contracts.predict_ledger import PredictLedgerRecord, PredictOutcome
+from metaboatrace.contracts.voting_ledger import (
+    Confirmation,
+    VoteStatus,
+    VotingLedgerRecord,
 )
 
+# 注: 各台帳の GSI 名 ``HELD_ON_INDEX`` は predict_ledger / voting_ledger の双方が同名で
+# 定義する (どちらの台帳も ``held_on-index`` を持つ)。top-level に再 export すると名前が
+# 衝突するため、サブモジュール経由で参照する (例 ``predict_ledger.HELD_ON_INDEX``)。
 __all__ = [
-    "HELD_ON_INDEX",
     "SCHEMA_VERSION",
     "Bet",
     "BetDecision",
+    "Confirmation",
     "CrawlCompletedDetail",
     "PredictLedgerRecord",
     "PredictOutcome",
+    "VoteStatus",
+    "VotingLedgerRecord",
 ]
