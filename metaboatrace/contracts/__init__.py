@@ -26,5 +26,6 @@
 from __future__ import annotations
 
 from metaboatrace.contracts.bet_decision import SCHEMA_VERSION, Bet, BetDecision
+from metaboatrace.contracts.crawl_completed import CrawlCompletedDetail
 
-__all__ = ["SCHEMA_VERSION", "Bet", "BetDecision"]
+__all__ = ["SCHEMA_VERSION", "Bet", "BetDecision", "CrawlCompletedDetail"]

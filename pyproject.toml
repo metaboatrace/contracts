@@ -1,6 +1,6 @@
 [project]
 name = "metaboatrace.contracts"
-version = "0.1.0"
+version = "0.2.0"
 description = "Published Language (wire contracts) shared across the metaboatrace pipeline"
 authors = [
     { name = "k0kishima", email = "okishimaxyz@gmail.com" }
