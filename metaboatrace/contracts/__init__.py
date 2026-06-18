@@ -23,4 +23,6 @@
 
 from __future__ import annotations
 
-__all__: list[str] = []
+from metaboatrace.contracts.bet_decision import SCHEMA_VERSION, Bet, BetDecision
+
+__all__ = ["SCHEMA_VERSION", "Bet", "BetDecision"]
