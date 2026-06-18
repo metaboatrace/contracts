@@ -27,5 +27,18 @@ from __future__ import annotations
 
 from metaboatrace.contracts.bet_decision import SCHEMA_VERSION, Bet, BetDecision
 from metaboatrace.contracts.crawl_completed import CrawlCompletedDetail
+from metaboatrace.contracts.predict_ledger import (
+    HELD_ON_INDEX,
+    PredictLedgerRecord,
+    PredictOutcome,
+)
 
-__all__ = ["SCHEMA_VERSION", "Bet", "BetDecision", "CrawlCompletedDetail"]
+__all__ = [
+    "HELD_ON_INDEX",
+    "SCHEMA_VERSION",
+    "Bet",
+    "BetDecision",
+    "CrawlCompletedDetail",
+    "PredictLedgerRecord",
+    "PredictOutcome",
+]
