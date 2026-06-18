@@ -1,0 +1,52 @@
+# .gitignore
+
+# Python artifacts
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# rye environment and artifacts
+.rye/
+.python-version
+.venv/
+
+# IDE - PyCharm
+.idea/
+*.iml
+
+# OS - macOS
+.DS_Store
+
+# OS - Windows
+Thumbs.db
