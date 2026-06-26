@@ -15,17 +15,18 @@ from pydantic import ValidationError
 
 from metaboatrace.contracts.bet_decision import SCHEMA_VERSION, BetDecision
 
-# このシステムの時刻はすべて JST 基準。
+# wire の instant は UTC (時刻の取り扱い標準)。_JST は instant 同一性の確認用
+# (UTC 値が同じ瞬間を指すことの照合)。
 _JST = timezone(timedelta(hours=9))
 
 # 契約 schema v1 の黄金サンプル (実レース 202606070710 / staging / 2-5-6 / ¥700)。
-# 下流 voting の golden 消費テストと **リテラル一致** させること。
+# instant は wire 正準の UTC。下流 voting の golden 消費テストと **リテラル一致** させること。
 GOLDEN_V1 = {
     "schema_version": 1,
     "race_id": "202606070710",
     "portfolio": "staging",
-    "decided_at": "2026-06-07T19:46:18+09:00",
-    "deadline_at": "2026-06-07T20:00:00+09:00",
+    "decided_at": "2026-06-07T10:46:18+00:00",
+    "deadline_at": "2026-06-07T11:00:00+00:00",
     "bets": [
         {
             "bet_type": "trifecta",
@@ -92,6 +93,19 @@ def test_rejects_missing_deadline() -> None:
 def test_rejects_null_deadline() -> None:
     with pytest.raises(ValidationError):
         BetDecision.model_validate({**GOLDEN_V1, "deadline_at": None})
+
+
+def test_rejects_naive_instant() -> None:
+    # instant は aware 必須。naive (オフセット無し) は wire で reject する。
+    with pytest.raises(ValidationError):
+        BetDecision.model_validate({**GOLDEN_V1, "decided_at": "2026-06-07T10:46:18"})
+
+
+def test_normalizes_non_utc_offset_to_utc() -> None:
+    # 任意のオフセット入力を受けるが、wire 出力は UTC に正規化される。
+    decision = BetDecision.model_validate({**GOLDEN_V1, "decided_at": "2026-06-07T19:46:18+09:00"})
+    dumped = json.loads(decision.model_dump_json())
+    assert dumped["decided_at"] == "2026-06-07T10:46:18+00:00"
 
 
 def test_rejects_empty_bets() -> None:

@@ -19,11 +19,12 @@ from metaboatrace.contracts.predict_ledger import (
     PredictOutcome,
 )
 
-# このシステムの時刻はすべて JST 基準。
+# wire の instant は UTC (時刻の取り扱い標準)。_JST は instant 同一性の確認用。
 _JST = timezone(timedelta(hours=9))
 
 # 黄金サンプル: 正常終了・買い目あり (実レース 202606070710 / staging / 1点 / ¥700)。
-# ml の produce テスト・dashboard の consume テストと **リテラル一致** させること。
+# instant は wire 正準の UTC。ml の produce テスト・dashboard の consume テストと
+# **リテラル一致** させること。
 GOLDEN_OK_BETS = {
     "race_id": "202606070710",
     "held_on": "2026-06-07",
@@ -31,7 +32,7 @@ GOLDEN_OK_BETS = {
     "n_bets": 1,
     "total_amount": 700,
     "model_version": "staging",
-    "decided_at": "2026-06-07T19:46:18+09:00",
+    "decided_at": "2026-06-07T10:46:18+00:00",
 }
 
 # 異常終了サンプル: decided_at は無く error_class が載る。
@@ -110,3 +111,9 @@ def test_rejects_missing_required_key() -> None:
     payload = {k: v for k, v in GOLDEN_OK_BETS.items() if k != "outcome"}
     with pytest.raises(ValidationError):
         PredictLedgerRecord.model_validate(payload)
+
+
+def test_rejects_naive_decided_at() -> None:
+    # instant は aware 必須。naive は wire で reject する。
+    with pytest.raises(ValidationError):
+        PredictLedgerRecord.model_validate({**GOLDEN_OK_BETS, "decided_at": "2026-06-07T10:46:18"})

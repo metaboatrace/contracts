@@ -24,10 +24,11 @@ tag pin して意図的な bump のみ取り込む。
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from metaboatrace.contracts._time import AwareUtcDatetime
 
 # 予想台帳を当日分まとめて引くための GSI 名 (partition key = held_on)。consumer は
 # この index で held_on (YYYY-MM-DD) を等値クエリし、race_id で各台帳を join する。
@@ -86,8 +87,8 @@ class PredictLedgerRecord(BaseModel):
     ``portfolio`` への改名は破壊的変更 (major bump + clean cutover) として別途行う。
     """
 
-    decided_at: datetime | None = None
-    """予想完了時刻 (tz-aware)。決定前に失敗した ``error`` では欠落しうるため optional。"""
+    decided_at: AwareUtcDatetime | None = None
+    """予想完了時刻 (aware, wire は UTC)。決定前に失敗した ``error`` では欠落しうるため optional。"""
 
     error_class: str | None = None
     """``outcome == error`` のときの例外型名。正常時は載らないため optional。"""
