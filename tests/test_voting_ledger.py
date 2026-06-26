@@ -20,21 +20,21 @@ from metaboatrace.contracts.voting_ledger import (
     VotingLedgerRecord,
 )
 
-# このシステムの時刻はすべて JST 基準。
+# wire の instant は UTC (時刻の取り扱い標準)。_JST は instant 同一性の確認用。
 _JST = timezone(timedelta(hours=9))
 
-# 黄金サンプル: 投票確定 (PLACED, 受付確証1件)。voting の produce テスト・dashboard の
-# consume テストと **リテラル一致** させること。
+# 黄金サンプル: 投票確定 (PLACED, 受付確証1件)。instant は wire 正準の UTC。voting の
+# produce テスト・dashboard の consume テストと **リテラル一致** させること。
 GOLDEN_PLACED = {
     "race_id": "202604270805",
     "held_on": "2026-04-27",
     "status": "placed",
-    "claimed_at": "2026-04-27T20:55:00+09:00",
+    "claimed_at": "2026-04-27T11:55:00+00:00",
     "run_id": "run-1",
     "amount": 700,
-    "placed_at": "2026-04-27T20:55:05+09:00",
+    "placed_at": "2026-04-27T11:55:05+00:00",
     "confirmations": [
-        {"acceptance_number": "A1", "accepted_at": "2026-04-27T20:55:05+09:00"},
+        {"acceptance_number": "A1", "accepted_at": "2026-04-27T11:55:05+00:00"},
     ],
 }
 
@@ -43,7 +43,7 @@ GOLDEN_CLAIMED = {
     "race_id": "202604270805",
     "held_on": "2026-04-27",
     "status": "claimed",
-    "claimed_at": "2026-04-27T20:55:00+09:00",
+    "claimed_at": "2026-04-27T11:55:00+00:00",
     "run_id": "run-1",
     "amount": 700,
 }
@@ -117,6 +117,12 @@ def test_rejects_negative_amount() -> None:
 
 def test_confirmation_round_trips_raw() -> None:
     c = Confirmation.model_validate(
-        {"acceptance_number": "A1", "accepted_at": "2026-04-27T20:55:05+09:00", "raw": "<xml/>"}
+        {"acceptance_number": "A1", "accepted_at": "2026-04-27T11:55:05+00:00", "raw": "<xml/>"}
     )
     assert c.raw == "<xml/>"
+
+
+def test_rejects_naive_instant() -> None:
+    # instant は aware 必須。naive は wire で reject する。
+    with pytest.raises(ValidationError):
+        VotingLedgerRecord.model_validate({**GOLDEN_PLACED, "placed_at": "2026-04-27T11:55:05"})

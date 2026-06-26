@@ -27,10 +27,11 @@ tag pin + 協調デプロイ**で防ぐ。
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from metaboatrace.contracts._time import AwareUtcDatetime
 
 # 投票台帳を当日分まとめて引くための GSI 名 (partition key = held_on)。consumer は
 # この index で held_on (YYYY-MM-DD) を等値クエリし、race_id で各台帳を join する。
@@ -67,8 +68,8 @@ class Confirmation(BaseModel):
     acceptance_number: str
     """投票が受け付けられたことを示す受付番号。監査の証拠として不可逆に残す。"""
 
-    accepted_at: datetime
-    """受付確証の時刻 (tz-aware)。"""
+    accepted_at: AwareUtcDatetime
+    """受付確証の時刻 (aware, wire は UTC)。"""
 
     raw: str | None = None
     """ベンダ生レスポンス (任意・監査用)。無ければ wire に出さない。"""
@@ -94,8 +95,8 @@ class VotingLedgerRecord(BaseModel):
     status: VoteStatus
     """投票の結末。enum の網羅は契約が所有 (未知値は reject)。状態遷移規則はドメイン。"""
 
-    claimed_at: datetime
-    """投票を確保した時刻 (tz-aware)。CLAIMED 以降は常に存在する。"""
+    claimed_at: AwareUtcDatetime
+    """投票を確保した時刻 (aware, wire は UTC)。CLAIMED 以降は常に存在する。"""
 
     run_id: str
     """投票試行の実行 ID (provenance)。"""
@@ -103,8 +104,8 @@ class VotingLedgerRecord(BaseModel):
     amount: int = Field(ge=0)
     """この投票指示の合計金額 (円)。1日累計上限などの policy はドメインに残す。"""
 
-    placed_at: datetime | None = None
-    """投票完了時刻 (tz-aware)。``status == placed`` のときのみ載るため optional。"""
+    placed_at: AwareUtcDatetime | None = None
+    """投票完了時刻 (aware, wire は UTC)。``status == placed`` のときのみ載るため optional。"""
 
     confirmations: list[Confirmation] = Field(default_factory=list)
     """受付確証のリスト。``placed`` でのみ非空 (1件以上)。それ以外は空。"""

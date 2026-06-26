@@ -16,10 +16,11 @@ ml (producer) が S3 に払い出し、voting (consumer) が消費する Publish
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from metaboatrace.contracts._time import AwareUtcDatetime
 
 # wire の schema_version が取る値。このパッケージの major version に対応する。
 SCHEMA_VERSION = 1
@@ -58,10 +59,10 @@ class BetDecision(BaseModel):
     portfolio: str
     """この決定を出したポートフォリオの識別子 (例 ``"staging"``)。provenance。"""
 
-    decided_at: datetime
-    """買い目を決定した時刻 (tz-aware)。``odds_at_decision`` はこの時点のオッズ。"""
+    decided_at: AwareUtcDatetime
+    """買い目を決定した時刻 (aware, wire は UTC)。``odds_at_decision`` はこの時点のオッズ。"""
 
-    deadline_at: datetime
+    deadline_at: AwareUtcDatetime
     """レースの投票締切時刻 (tz-aware)。締切ガードの権威ソース。"""
 
     bets: list[Bet] = Field(min_length=1)
