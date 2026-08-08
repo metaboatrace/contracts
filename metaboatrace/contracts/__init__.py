@@ -27,24 +27,49 @@ from __future__ import annotations
 
 from metaboatrace.contracts.bet_decision import SCHEMA_VERSION, Bet, BetDecision
 from metaboatrace.contracts.crawl_completed import CrawlCompletedDetail
+from metaboatrace.contracts.crawl_ledger import CrawlLedgerRecord, CrawlOutcome
+from metaboatrace.contracts.ops_ledger import JobOutcome, OpsEntryKind, OpsLedgerRecord
+from metaboatrace.contracts.pipeline_kpi import (
+    EXCLUDED_CATEGORIES,
+    GOOD_CATEGORIES,
+    SUMMARY_SORT_KEY,
+    DailyKpiSummary,
+    RaceKpiCategory,
+    RaceKpiRecord,
+)
 from metaboatrace.contracts.predict_ledger import PredictLedgerRecord, PredictOutcome
+from metaboatrace.contracts.voting_attempt import VotingAttemptOutcome, VotingAttemptRecord
 from metaboatrace.contracts.voting_ledger import (
     Confirmation,
     VoteStatus,
     VotingLedgerRecord,
 )
 
-# 注: 各台帳の GSI 名 ``HELD_ON_INDEX`` は predict_ledger / voting_ledger の双方が同名で
-# 定義する (どちらの台帳も ``held_on-index`` を持つ)。top-level に再 export すると名前が
-# 衝突するため、サブモジュール経由で参照する (例 ``predict_ledger.HELD_ON_INDEX``)。
+# 注: 各台帳の GSI 名 ``HELD_ON_INDEX`` は predict_ledger / voting_ledger / crawl_ledger /
+# voting_attempt が同名で定義する (いずれの台帳も ``held_on-index`` を持つ)。top-level に
+# 再 export すると名前が衝突するため、サブモジュール経由で参照する
+# (例 ``predict_ledger.HELD_ON_INDEX``)。
 __all__ = [
+    "EXCLUDED_CATEGORIES",
+    "GOOD_CATEGORIES",
     "SCHEMA_VERSION",
+    "SUMMARY_SORT_KEY",
     "Bet",
     "BetDecision",
     "Confirmation",
     "CrawlCompletedDetail",
+    "CrawlLedgerRecord",
+    "CrawlOutcome",
+    "DailyKpiSummary",
+    "JobOutcome",
+    "OpsEntryKind",
+    "OpsLedgerRecord",
     "PredictLedgerRecord",
     "PredictOutcome",
+    "RaceKpiCategory",
+    "RaceKpiRecord",
     "VoteStatus",
+    "VotingAttemptOutcome",
+    "VotingAttemptRecord",
     "VotingLedgerRecord",
 ]
