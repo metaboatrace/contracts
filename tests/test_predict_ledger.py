@@ -64,6 +64,21 @@ def test_parses_golden_ok_bets() -> None:
     assert record.error_class is None
 
 
+def test_parses_golden_ok_bets_without_s3_key() -> None:
+    # s3_key は加算的に足した optional。既存 item (フィールド無し) はそのまま parse できる。
+    record = PredictLedgerRecord.model_validate(GOLDEN_OK_BETS)
+
+    assert record.s3_key is None
+
+
+def test_parses_s3_key_and_round_trips() -> None:
+    payload = {**GOLDEN_OK_BETS, "s3_key": "decisions/2026-06-07/202606070710.json"}
+    record = PredictLedgerRecord.model_validate(payload)
+
+    assert record.s3_key == "decisions/2026-06-07/202606070710.json"
+    assert json.loads(record.model_dump_json(exclude_none=True)) == payload
+
+
 def test_parses_golden_error() -> None:
     record = PredictLedgerRecord.model_validate(GOLDEN_ERROR)
 

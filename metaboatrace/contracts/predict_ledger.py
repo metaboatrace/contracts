@@ -92,3 +92,11 @@ class PredictLedgerRecord(BaseModel):
 
     error_class: str | None = None
     """``outcome == error`` のときの例外型名。正常時は載らないため optional。"""
+
+    s3_key: str | None = None
+    """買い目 JSON を S3 に保存できたときのオブジェクトキー。
+
+    ``ok_bets`` なのにこれが無い item は「買い目は出たが下流 (voting) へ渡せていない」ことを
+    意味する。既存 item には無いフィールドなので optional (加算的変更で後方互換)。
+    outcome との相関はドメインに残す。
+    """
