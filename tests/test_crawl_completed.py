@@ -57,7 +57,9 @@ def test_rejects_unknown_key() -> None:
         CrawlCompletedDetail.model_validate({**GOLDEN_DETAIL, "race_id": "202605071205"})
 
 
-@pytest.mark.parametrize("missing", ["aspect", "stadium_tel_code", "race_holding_date", "race_number"])
+@pytest.mark.parametrize(
+    "missing", ["aspect", "stadium_tel_code", "race_holding_date", "race_number"]
+)
 def test_rejects_missing_field(missing: str) -> None:
     payload = {k: v for k, v in GOLDEN_DETAIL.items() if k != missing}
     with pytest.raises(ValidationError):
