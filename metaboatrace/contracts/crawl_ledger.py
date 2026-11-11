@@ -1,7 +1,7 @@
 """crawl-ledger レコード契約 (crawlers → 突合バッチ / dashboard, AWS DynamoDB) の wire 型.
 
 crawlers (producer) が 1 レース × 1 aspect ごとにクロールの結末を DynamoDB のクロール台帳へ
-upsert し、突合バッチ (consumer) が「予想が起動しなかったレースは上流クロールの失敗なのか、
+upsert し (クロールのタスクが起動すらしなかった場合だけは、infra の recorder が代わりに書く)、突合バッチ (consumer) が「予想が起動しなかったレースは上流クロールの失敗なのか、
 受け渡しの喪失なのか」を切り分けるための記録。``CrawlCompleted`` イベント (成功時のみ発火する
 一過性のシグナル) と違い、**失敗・中止を含む全結末が残る**のがこの台帳の存在理由。
 
@@ -46,7 +46,12 @@ class CrawlOutcome(StrEnum):
     """クロール成功 (``CrawlCompleted`` の発行と同時に記録する)。"""
 
     FAILED = "failed"
-    """リトライ枯渇による最終失敗。``error_class`` に例外型名が載る。"""
+    """リトライ枯渇による最終失敗。``error_class`` に例外型名が載る。
+
+    クロールのタスクが起動されなかった場合 (Scheduler の RunTask 呼び出しが再試行窓の中で
+    成立しなかった) もこの値で、``error_class`` は ``DispatchFailure:<Scheduler の ERROR_CODE>``
+    になる。アプリのコードが走らないので、書き手は crawlers ではなく infra の recorder。
+    """
 
     CANCELED = "canceled"
     """レース中止を確認した (per-race / 場単位とも)。"""
@@ -78,7 +83,8 @@ class CrawlLedgerRecord(BaseModel):
     """クロールの結末。enum の網羅は契約が所有 (未知値は reject)。"""
 
     error_class: str | None = None
-    """``outcome == failed`` のときの例外型名。正常時は載らないため optional。"""
+    """``outcome == failed`` のときの失敗種別。crawlers が書く item では例外型名、タスクが
+    起動されなかった item では ``DispatchFailure:`` で始まる。正常時は載らないため optional。"""
 
     finished_at: AwareUtcDatetime
     """結末が確定した時刻 (aware, wire は UTC)。"""
